@@ -22,15 +22,28 @@ def movement(position):
 def main():
     position = 0  # the player position on the board out of 40.
     double_streak = 0
+    turn_counter = 0
+    jail = False  # flag to know if we are in jail or just visiting jail
     for i in range(10):
         position, double = movement(position)
-        double_streak = double_streak + 1 if double else 0
-        print("streak: ", double_streak)  # checking the double streak counter
-        if double_streak == 3:
-            print("You need to go to jail")
+        while double:
+            double_streak += 1
+            print("streak: ", double_streak)  # checking the double streak counter
+            if double_streak == 3:
+                print("go to jail because of doubles streak")
+                position = 10
+                jail = True
+                double = False
+            else:
+                position, double = movement(position)
+        # end of turn sequence
+        double_streak = 0
+        turn_counter += 1
         print("position in main:", position)
-        print("adding only for jail branch")
+        print("end of turn")
+        print("# number of turns: ", turn_counter)
+        print()
 
-# check this
+
 if __name__ == '__main__':
     main()

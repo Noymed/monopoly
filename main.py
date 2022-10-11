@@ -30,6 +30,6 @@ def main():
             print("You need to go to jail")
         print("position in main:", position)
 
-
+# check this
 if __name__ == '__main__':
     main()

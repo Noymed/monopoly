@@ -29,6 +29,7 @@ def main():
         if double_streak == 3:
             print("You need to go to jail")
         print("position in main:", position)
+        print("adding only for jail branch")
 
 # check this
 if __name__ == '__main__':

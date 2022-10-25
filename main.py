@@ -1,6 +1,16 @@
 import random
 from tqdm import tqdm
 
+"""
+general assumptions:
+1) only one person goes across the board
+1) if you get to jail after a double you don't get another throw of dice
+2) every time you have a get out of jail free card you will use it
+3) you use the chance card before the community chest card
+4) for now, you don't pay to get out of jail early
+5) when the chance/cc deck is empty we shuffle it again
+"""
+
 
 def movement(position):
     """
@@ -45,15 +55,23 @@ def chance(position: int, chance_list: list, goj: bool):
     }
     collect = False
     jail = False
+    # resetting the chance list when it is empty
+    if len(chance_list) == 0:
+        print('There are no more chance card, we will reshuffle the deck')
+        chance_list = [n for n in range(1, 17)]
+        if goj:
+            chance_list.remove(9)
+
     card = random.choice(chance_list)
-    print(chance_dict[card])
+    print(card, ':', chance_dict[card])
     chance_list.remove(card)
     if card in [8, 12, 13, 15, 16]:
         print("no action taken")
     elif card == 9:
+        print("you get a get out of jail free card")
         goj = True
     elif card == 1:
-        position = 1
+        position = 39
         print('moved to boardwalk')
     elif card == 2:
         position = 0
@@ -108,6 +126,7 @@ def chance(position: int, chance_list: list, goj: bool):
 
     if collect:
         print("you collect money")
+    print(f'{chance_list = } in function')
 
     return position, chance_list, goj, jail
 
@@ -120,16 +139,22 @@ def main():
     jail = False  # flag to know if we are in jail or just visiting jail
     jail_count = 0
     chance_goj = False  # does the player have a get out of jail card
+    cc_goj = False  # community chest get out of jail card
     chance_list = [n for n in range(1, 17)]
     print("chance list: ", chance_list)
 
     # playing 10 turns
-    for i in tqdm(range(10), desc="player turns", colour='blue'):
+    for i in tqdm(range(63), desc="player turns", colour='blue'):
+        if chance_goj and jail:
+            print("You used the get out of jail card")
+            jail_count = 0
+            jail = False
+            chance_goj = False
+
         if jail:
             position = 10  # to make sure that the player is in the jail position
             # playing if the player is in jail
             # in the future i need to add the option of the player paid to get out of the jail.
-            # in the future i need to add the option to use get out of jail free card
             jail_count += 1  # the number of consecutive turn in jail.
             print(f'you are {jail_count} turns in jail')
             die1 = random.randint(1, 6)
@@ -143,7 +168,7 @@ def main():
                 jail = False
             elif jail_count == 3:
                 # it is a different 'if' statement so in the future i will be able to add the money factor to the game.
-                print("double! you get out of jail")
+                print("you pay the fine and get out of jail")
                 position = sum((position, die1, die2))
                 jail_count = 0
                 jail = False
@@ -151,12 +176,25 @@ def main():
         else:
             # normal turn (not in jail)
             position, double = movement(position)
+            # added to check the chance function
+            if i <= 16:
+                position = 7
+            elif i >= 33:
+                position = 36
+            else:
+                position = 22
+            # end of test lines
             # landing on go to jail
             if position == 30:
                 print("landed on go to jail")
                 double = False  # so we won't have another throw
                 jail = True
                 position = 10
+            if position in [7, 22, 36]:
+                print("You get a chance card")
+                position, chance_list, chance_goj, jail = chance(position, chance_list, chance_goj)
+                if jail:
+                    double = False  # so if i go to jail and have a double i won't play a double
             # playing the double rule
             while double:
                 double_streak += 1
@@ -172,6 +210,7 @@ def main():
         double_streak = 0
         turn_counter += 1
         print("position in main:", position)
+        print(f'{chance_list=} in main')
         print("end of turn")
         print("# number of turns: ", turn_counter)
         print()

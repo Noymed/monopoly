@@ -144,7 +144,7 @@ def main():
     print("chance list: ", chance_list)
 
     # playing 10 turns
-    for i in tqdm(range(63), desc="player turns", colour='blue'):
+    for i in tqdm(range(10), desc="player turns", colour='blue'):
         if chance_goj and jail:
             print("You used the get out of jail card")
             jail_count = 0
@@ -176,20 +176,13 @@ def main():
         else:
             # normal turn (not in jail)
             position, double = movement(position)
-            # added to check the chance function
-            if i <= 16:
-                position = 7
-            elif i >= 33:
-                position = 36
-            else:
-                position = 22
-            # end of test lines
             # landing on go to jail
             if position == 30:
                 print("landed on go to jail")
                 double = False  # so we won't have another throw
                 jail = True
                 position = 10
+            # landing on chance card
             if position in [7, 22, 36]:
                 print("You get a chance card")
                 position, chance_list, chance_goj, jail = chance(position, chance_list, chance_goj)
